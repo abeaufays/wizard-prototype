@@ -1,6 +1,7 @@
 import curses
 
 from wizard_prototype.game import state
+from wizard_prototype.utils import Vec2D
 
 
 class Renderer:
@@ -9,12 +10,18 @@ class Renderer:
 
     def update(self, game_state: state.GameState):
         self.stdscr.clear()
-        self.stdscr.addstr(
-            game_state.player.position[0], game_state.player.position[1], ""
-        )
+
+        self._draw_character(game_state.player.position, "")
 
         for projectile in game_state.projectiles:
-            self.stdscr.addstr(projectile.position[0], projectile.position[1], "󰈸")
+            self._draw_character(projectile.position, "󰈸")
 
         if game_state.debug:
             self.stdscr.addstr(0, 0, game_state.debug)
+
+    def _draw_character(self, position: Vec2D, char: str) -> None:
+        if (
+            0 <= position[0] < self.stdscr.getmaxyx()[0]
+            and 0 <= position[1] < self.stdscr.getmaxyx()[1]
+        ):
+            self.stdscr.addstr(position[0], position[1], char)
