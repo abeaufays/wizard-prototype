@@ -12,9 +12,11 @@ LEFT = (0, -1)
 class Projectile:
     position: utils.Vec2D
     direction: utils.Vec2D
+    lifetime: int = 10
 
     def update(self):
         self.position = utils.add(self.position, self.direction)
+        self.lifetime -= 1
 
 
 @dataclass
@@ -62,5 +64,11 @@ class GameState:
                 self.new_turn()
 
     def new_turn(self):
+        to_remove = []
         for projectile in self.projectiles:
             projectile.update()
+            if projectile.lifetime < 0:
+                to_remove.append(projectile)
+
+        for projectile_to_remove in to_remove:
+            self.projectiles.remove(projectile_to_remove)
