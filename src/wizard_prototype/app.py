@@ -1,6 +1,7 @@
 import curses
 
-from wizard_prototype import game, rendering
+from wizard_prototype import rendering
+from wizard_prototype.game import state
 
 
 def start_app(stdscr: curses.window):
@@ -11,7 +12,7 @@ class App:
     def __init__(self, stdscr: curses.window):
         stdscr.clear()
         self.renderer = rendering.Renderer(stdscr)
-        self.game_state = game.GameState()
+        self.game_state = state.GameState()
         curses.noecho()
         curses.curs_set(False)
 
