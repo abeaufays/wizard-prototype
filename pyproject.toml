@@ -1,0 +1,17 @@
+[project]
+name = "wizard-prototype"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Alexandre Beaufays", email = "alexandre.beaufays@kraken.tech" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+wizard-prototype = "wizard_prototype:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
