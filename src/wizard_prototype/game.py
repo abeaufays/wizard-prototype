@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from wizard_prototype import utils
 
@@ -9,12 +9,19 @@ LEFT = (0, -1)
 
 
 @dataclass
-class GameState:
-    player_position: utils.Vec2D
+class Projectile:
+    position: utils.Vec2D
+    direction: utils.Vec2D
 
-    def __init__(self):
-        self.player_position = (10, 10)
-        self.player_direction = UP
+    def update(self):
+        self.position = utils.add(self.position, self.direction)
+
+
+@dataclass
+class GameState:
+    player_position: utils.Vec2D = (10, 10)
+    player_direction = UP
+    projectiles: list[Projectile] = field(default_factory=list)
 
     def update(self, cmd: str):
         match cmd:
@@ -44,6 +51,16 @@ class GameState:
                 self.player_direction = UP
             case "L":
                 self.player_direction = RIGHT
+            # Spells
+            case "f":
+                self.projectiles.append(
+                    Projectile(
+                        position=utils.add(self.player_position, self.player_direction),
+                        direction=self.player_direction,
+                    )
+                )
+                self.new_turn()
 
     def new_turn(self):
-        pass
+        for projectile in self.projectiles:
+            projectile.update()

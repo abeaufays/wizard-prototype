@@ -12,3 +12,6 @@ class Renderer:
         self.stdscr.addstr(
             game_state.player_position[0], game_state.player_position[1], ""
         )
+
+        for projectile in game_state.projectiles:
+            self.stdscr.addstr(projectile.position[0], projectile.position[1], "󰈸")
