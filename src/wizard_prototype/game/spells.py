@@ -8,6 +8,10 @@ class Spell(abc.ABC):
     @abc.abstractmethod
     def element(self) -> str: ...
 
+    @property
+    @abc.abstractmethod
+    def lifetime(self) -> int: ...
+
     @abc.abstractmethod
     def affected_tiles(self) -> list[utils.Vec2D]: ...
 
@@ -25,7 +29,11 @@ class Projectile(Spell):
         self.position: utils.Vec2D = position
         self.direction: utils.Vec2D = direction
         self._element: str = element
-        self.lifetime: int = 10
+        self._lifetime: int = 10
+
+    @property
+    def lifetime(self) -> int:
+        return self._lifetime
 
     @property
     def element(self) -> str:
@@ -33,7 +41,7 @@ class Projectile(Spell):
 
     def update(self) -> None:
         self.position = utils.add(self.position, self.direction)
-        self.lifetime -= 1
+        self._lifetime -= 1
 
     def affected_tiles(self) -> list[utils.Vec2D]:
         return [self.position]
