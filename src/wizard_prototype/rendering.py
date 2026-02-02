@@ -13,8 +13,9 @@ class Renderer:
 
         self._draw_character(game_state.player.position, "")
 
-        for projectile in game_state.projectiles:
-            self._draw_character(projectile.position, "󰈸")
+        for spell in game_state.spells:
+            for position in spell.affected_tiles():
+                self._draw_character(position, spell.element)
 
         if game_state.debug:
             self.stdscr.addstr(0, 0, game_state.debug)
