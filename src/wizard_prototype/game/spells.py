@@ -45,3 +45,36 @@ class Projectile(Spell):
 
     def affected_tiles(self) -> list[utils.Vec2D]:
         return [self.position]
+
+
+class Ray(Spell):
+    def __init__(
+        self,
+        starting_position: utils.Vec2D,
+        direction: utils.Vec2D,
+        element: str,
+    ):
+        self.starting_position: utils.Vec2D = starting_position
+        self.direction: utils.Vec2D = direction
+        self.range: int = 5
+        self._element: str = element
+        self._lifetime: int = 1
+
+    @property
+    def lifetime(self) -> int:
+        return self._lifetime
+
+    @property
+    def element(self) -> str:
+        return self._element
+
+    def update(self) -> None:
+        self._lifetime -= 1
+
+    def affected_tiles(self) -> list[utils.Vec2D]:
+        result = []
+        for i in range(1, self.range + 1):
+            result.append(
+                utils.add(self.starting_position, utils.mult(self.direction, i))
+            )
+        return result

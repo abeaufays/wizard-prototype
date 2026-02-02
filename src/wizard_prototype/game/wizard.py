@@ -93,6 +93,18 @@ class FormPending(WizardState):
                 )
                 self.wizard.current_state = Normal(self.wizard)
                 return True
+            case "r":
+                game_state.spells.append(
+                    spells.Ray(
+                        starting_position=utils.add(
+                            self.wizard.position, self.wizard.direction
+                        ),
+                        direction=self.wizard.direction,
+                        element=self.element,
+                    )
+                )
+                self.wizard.current_state = Normal(self.wizard)
+                return True
             case _:
                 self.fail_spell()
                 self.wizard.current_state = Normal(self.wizard)
