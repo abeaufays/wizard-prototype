@@ -16,6 +16,7 @@ class App:
         curses.noecho()
         curses.curs_set(False)
 
+        self.renderer.update(self.game_state)
         while True:
             cmd = stdscr.getkey()
             if cmd == "q":
