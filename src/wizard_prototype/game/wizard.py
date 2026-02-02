@@ -63,6 +63,10 @@ class ElementPending(WizardState):
                 self.wizard.current_state = Normal(self.wizard)
             case "f":
                 self.wizard.current_state = FormPending(self.wizard, "󰈸")
+            case "i":
+                self.wizard.current_state = FormPending(self.wizard, "󰜗")
+            case "a":
+                self.wizard.current_state = FormPending(self.wizard, "")
             case _:
                 self.fail_spell()
                 return True
