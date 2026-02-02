@@ -68,6 +68,7 @@ class ElementPending(WizardState):
             case "a":
                 self.wizard.current_state = FormPending(self.wizard, "")
             case _:
+                self.wizard.current_state = Normal(self.wizard)
                 self.fail_spell()
                 return True
         return False
@@ -94,6 +95,7 @@ class FormPending(WizardState):
                 return True
             case _:
                 self.fail_spell()
+                self.wizard.current_state = Normal(self.wizard)
                 return True
         return False
 
@@ -103,6 +105,7 @@ class Wizard:
         self.position: utils.Vec2D = position
         self.direction: utils.Vec2D = direction
         self.current_state: WizardState = Normal(self)
+        self.life = 10
 
     def handle_input(
         self,
