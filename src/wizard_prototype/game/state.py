@@ -1,4 +1,3 @@
-from wizard_prototype import utils
 from wizard_prototype.game import spells, wizard
 
 
@@ -6,7 +5,7 @@ class GameState:
     def __init__(self) -> None:
         self.debug: str = ""
         self.spells: list[spells.Spell] = []
-        self.player = wizard.Wizard(position=(5, 5), direction=utils.UP)
+        self.player = wizard.Wizard(position=(5, 5))
 
     def update(self, cmd: str):
         self.player.handle_input(cmd, self)

@@ -30,29 +30,16 @@ class Normal(SpellCastingState):
             # Moves
             case "h":
                 self.wizard.position = utils.add(self.wizard.position, utils.LEFT)
-                self.wizard.direction = utils.LEFT
                 return True
             case "j":
                 self.wizard.position = utils.add(self.wizard.position, utils.DOWN)
-                self.wizard.direction = utils.DOWN
                 return True
             case "k":
                 self.wizard.position = utils.add(self.wizard.position, utils.UP)
-                self.wizard.direction = utils.UP
                 return True
             case "l":
                 self.wizard.position = utils.add(self.wizard.position, utils.RIGHT)
-                self.wizard.direction = utils.RIGHT
                 return True
-            # Turn around
-            case "H":
-                self.wizard.direction = utils.LEFT
-            case "J":
-                self.wizard.direction = utils.DOWN
-            case "K":
-                self.wizard.direction = utils.UP
-            case "L":
-                self.wizard.direction = utils.RIGHT
         return False
 
 
@@ -84,25 +71,55 @@ class FormPending(SpellCastingState):
             case " ":
                 self.wizard.current_state = Normal(self.wizard)
             case "b":
-                game_state.spells.append(
+                self.wizard.current_state = DirectionPending(
+                    self.wizard,
                     spells.Projectile(
-                        position=utils.add(self.wizard.position, self.wizard.direction),
-                        direction=self.wizard.direction,
+                        starting_position=self.wizard.position,
                         base=self.base,
-                    )
+                    ),
                 )
+            case "r":
+                self.wizard.current_state = DirectionPending(
+                    self.wizard,
+                    spells.Ray(
+                        starting_position=self.wizard.position,
+                        base=self.base,
+                    ),
+                )
+            case _:
+                self.fail_spell()
                 self.wizard.current_state = Normal(self.wizard)
                 return True
-            case "r":
-                game_state.spells.append(
-                    spells.Ray(
-                        starting_position=utils.add(
-                            self.wizard.position, self.wizard.direction
-                        ),
-                        direction=self.wizard.direction,
-                        base=self.base,
-                    )
-                )
+        return False
+
+
+class DirectionPending(SpellCastingState):
+    def __init__(self, wizard: Wizard, spell: spells.Spell) -> None:
+        self.wizard: Wizard = wizard
+        self.spell: spells.Spell = spell
+
+    def handle_input(self, cmd: str, game_state: state.GameState) -> bool:
+        match cmd:
+            case " ":
+                self.wizard.current_state = BasePending(self.wizard)
+            case "h":
+                self.spell.give_direction(utils.LEFT)
+                game_state.spells.append(self.spell)
+                self.wizard.current_state = Normal(self.wizard)
+                return True
+            case "j":
+                self.spell.give_direction(utils.DOWN)
+                game_state.spells.append(self.spell)
+                self.wizard.current_state = Normal(self.wizard)
+                return True
+            case "k":
+                self.spell.give_direction(utils.UP)
+                game_state.spells.append(self.spell)
+                self.wizard.current_state = Normal(self.wizard)
+                return True
+            case "l":
+                self.spell.give_direction(utils.RIGHT)
+                game_state.spells.append(self.spell)
                 self.wizard.current_state = Normal(self.wizard)
                 return True
             case _:
@@ -113,9 +130,8 @@ class FormPending(SpellCastingState):
 
 
 class Wizard:
-    def __init__(self, position: utils.Vec2D, direction: utils.Vec2D) -> None:
+    def __init__(self, position: utils.Vec2D) -> None:
         self.position: utils.Vec2D = position
-        self.direction: utils.Vec2D = direction
         self.current_state: SpellCastingState = Normal(self)
         self.life = 10
 
