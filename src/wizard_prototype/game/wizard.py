@@ -6,8 +6,8 @@ from wizard_prototype import utils
 from wizard_prototype.game import spells, state
 
 
-class WizardState(abc.ABC):
-    def __init__(self, wizard) -> None:
+class SpellCastingState(abc.ABC):
+    def __init__(self, wizard: Wizard) -> None:
         self.wizard = wizard
 
     @abc.abstractmethod
@@ -22,7 +22,7 @@ class WizardState(abc.ABC):
         self.wizard.life -= 1
 
 
-class Normal(WizardState):
+class Normal(SpellCastingState):
     def handle_input(self, cmd: str, game_state: state.GameState) -> bool:
         match cmd:
             case " ":
@@ -56,7 +56,7 @@ class Normal(WizardState):
         return False
 
 
-class BasePending(WizardState):
+class BasePending(SpellCastingState):
     def handle_input(self, cmd: str, game_state: state.GameState) -> bool:
         match cmd:
             case " ":
@@ -74,7 +74,7 @@ class BasePending(WizardState):
         return False
 
 
-class FormPending(WizardState):
+class FormPending(SpellCastingState):
     def __init__(self, wizard: Wizard, base: str) -> None:
         super().__init__(wizard)
         self.base = base
@@ -116,7 +116,7 @@ class Wizard:
     def __init__(self, position: utils.Vec2D, direction: utils.Vec2D) -> None:
         self.position: utils.Vec2D = position
         self.direction: utils.Vec2D = direction
-        self.current_state: WizardState = Normal(self)
+        self.current_state: SpellCastingState = Normal(self)
         self.life = 10
 
     def handle_input(
