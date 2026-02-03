@@ -6,7 +6,7 @@ from wizard_prototype import utils
 class Spell(abc.ABC):
     @property
     @abc.abstractmethod
-    def element(self) -> str: ...
+    def base(self) -> str: ...
 
     @property
     @abc.abstractmethod
@@ -24,11 +24,11 @@ class Projectile(Spell):
         self,
         position: utils.Vec2D,
         direction: utils.Vec2D,
-        element: str,
+        base: str,
     ):
         self.position: utils.Vec2D = position
         self.direction: utils.Vec2D = direction
-        self._element: str = element
+        self._base: str = base
         self._lifetime: int = 10
 
     @property
@@ -36,8 +36,8 @@ class Projectile(Spell):
         return self._lifetime
 
     @property
-    def element(self) -> str:
-        return self._element
+    def base(self) -> str:
+        return self._base
 
     def update(self) -> None:
         self.position = utils.add(self.position, self.direction)
@@ -52,12 +52,12 @@ class Ray(Spell):
         self,
         starting_position: utils.Vec2D,
         direction: utils.Vec2D,
-        element: str,
+        base: str,
     ):
         self.starting_position: utils.Vec2D = starting_position
         self.direction: utils.Vec2D = direction
         self.range: int = 5
-        self._element: str = element
+        self._base: str = base
         self._lifetime: int = 1
 
     @property
@@ -65,8 +65,8 @@ class Ray(Spell):
         return self._lifetime
 
     @property
-    def element(self) -> str:
-        return self._element
+    def base(self) -> str:
+        return self._base
 
     def update(self) -> None:
         self._lifetime -= 1

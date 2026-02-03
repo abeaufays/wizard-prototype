@@ -26,7 +26,7 @@ class Normal(WizardState):
     def handle_input(self, cmd: str, game_state: state.GameState) -> bool:
         match cmd:
             case " ":
-                self.wizard.current_state = ElementPending(self.wizard)
+                self.wizard.current_state = BasePending(self.wizard)
             # Moves
             case "h":
                 self.wizard.position = utils.add(self.wizard.position, utils.LEFT)
@@ -56,7 +56,7 @@ class Normal(WizardState):
         return False
 
 
-class ElementPending(WizardState):
+class BasePending(WizardState):
     def handle_input(self, cmd: str, game_state: state.GameState) -> bool:
         match cmd:
             case " ":
@@ -75,9 +75,9 @@ class ElementPending(WizardState):
 
 
 class FormPending(WizardState):
-    def __init__(self, wizard: Wizard, element: str) -> None:
+    def __init__(self, wizard: Wizard, base: str) -> None:
         super().__init__(wizard)
-        self.element = element
+        self.base = base
 
     def handle_input(self, cmd: str, game_state: state.GameState) -> bool:
         match cmd:
@@ -88,7 +88,7 @@ class FormPending(WizardState):
                     spells.Projectile(
                         position=utils.add(self.wizard.position, self.wizard.direction),
                         direction=self.wizard.direction,
-                        element=self.element,
+                        base=self.base,
                     )
                 )
                 self.wizard.current_state = Normal(self.wizard)
@@ -100,7 +100,7 @@ class FormPending(WizardState):
                             self.wizard.position, self.wizard.direction
                         ),
                         direction=self.wizard.direction,
-                        element=self.element,
+                        base=self.base,
                     )
                 )
                 self.wizard.current_state = Normal(self.wizard)

@@ -15,7 +15,7 @@ class Renderer:
 
         for spell in game_state.spells:
             for position in spell.affected_tiles():
-                self._draw_character(position, spell.element)
+                self._draw_character(position, spell.base)
 
         if game_state.debug:
             self.stdscr.addstr(0, 0, game_state.debug)
