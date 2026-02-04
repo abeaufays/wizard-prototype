@@ -31,26 +31,12 @@ class Normal(SpellCastingState):
             return True
         else:
             match cmd:
-                case " ":
-                    self.wizard.current_state = BasePending(self.wizard)
-        return False
-
-
-class BasePending(SpellCastingState):
-    def handle_input(self, cmd: str, game_state: state.GameState) -> bool:
-        match cmd:
-            case " ":
-                self.wizard.current_state = Normal(self.wizard)
-            case "f":
-                self.wizard.current_state = FormPending(self.wizard, "󰈸")
-            case "i":
-                self.wizard.current_state = FormPending(self.wizard, "󰜗")
-            case "a":
-                self.wizard.current_state = FormPending(self.wizard, "")
-            case _:
-                self.wizard.current_state = Normal(self.wizard)
-                self.fail_spell()
-                return True
+                case "f":
+                    self.wizard.current_state = FormPending(self.wizard, "󰈸")
+                case "i":
+                    self.wizard.current_state = FormPending(self.wizard, "󰜗")
+                case "a":
+                    self.wizard.current_state = FormPending(self.wizard, "")
         return False
 
 
@@ -95,8 +81,10 @@ class DirectionPending(SpellCastingState):
         if direction_utils.is_direction(cmd):
             direction = direction_utils.to_direction(cmd).value
             self.spell.give_direction(direction)
+
             game_state.spells.append(self.spell)
             self.wizard.current_state = Normal(self.wizard)
+
             return True
         else:
             match cmd:
