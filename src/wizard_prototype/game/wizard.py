@@ -3,6 +3,7 @@ from __future__ import annotations
 import abc
 
 from wizard_prototype import utils
+from wizard_prototype.game import direction as direction_utils
 from wizard_prototype.game import spells, state
 
 
@@ -24,22 +25,14 @@ class SpellCastingState(abc.ABC):
 
 class Normal(SpellCastingState):
     def handle_input(self, cmd: str, game_state: state.GameState) -> bool:
-        match cmd:
-            case " ":
-                self.wizard.current_state = BasePending(self.wizard)
-            # Moves
-            case "h":
-                self.wizard.position = utils.add(self.wizard.position, utils.LEFT)
-                return True
-            case "j":
-                self.wizard.position = utils.add(self.wizard.position, utils.DOWN)
-                return True
-            case "k":
-                self.wizard.position = utils.add(self.wizard.position, utils.UP)
-                return True
-            case "l":
-                self.wizard.position = utils.add(self.wizard.position, utils.RIGHT)
-                return True
+        if direction_utils.is_direction(cmd):
+            direction = direction_utils.to_direction(cmd)
+            self.wizard.position = utils.add(self.wizard.position, direction.value)
+            return True
+        else:
+            match cmd:
+                case " ":
+                    self.wizard.current_state = BasePending(self.wizard)
         return False
 
 
@@ -99,33 +92,20 @@ class DirectionPending(SpellCastingState):
         self.spell: spells.Spell = spell
 
     def handle_input(self, cmd: str, game_state: state.GameState) -> bool:
-        match cmd:
-            case " ":
-                self.wizard.current_state = BasePending(self.wizard)
-            case "h":
-                self.spell.give_direction(utils.LEFT)
-                game_state.spells.append(self.spell)
-                self.wizard.current_state = Normal(self.wizard)
-                return True
-            case "j":
-                self.spell.give_direction(utils.DOWN)
-                game_state.spells.append(self.spell)
-                self.wizard.current_state = Normal(self.wizard)
-                return True
-            case "k":
-                self.spell.give_direction(utils.UP)
-                game_state.spells.append(self.spell)
-                self.wizard.current_state = Normal(self.wizard)
-                return True
-            case "l":
-                self.spell.give_direction(utils.RIGHT)
-                game_state.spells.append(self.spell)
-                self.wizard.current_state = Normal(self.wizard)
-                return True
-            case _:
-                self.fail_spell()
-                self.wizard.current_state = Normal(self.wizard)
-                return True
+        if direction_utils.is_direction(cmd):
+            direction = direction_utils.to_direction(cmd).value
+            self.spell.give_direction(direction)
+            game_state.spells.append(self.spell)
+            self.wizard.current_state = Normal(self.wizard)
+            return True
+        else:
+            match cmd:
+                case " ":
+                    self.wizard.current_state = Normal(self.wizard)
+                case _:
+                    self.fail_spell()
+                    self.wizard.current_state = Normal(self.wizard)
+                    return True
         return False
 
 
