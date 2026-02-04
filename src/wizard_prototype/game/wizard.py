@@ -53,7 +53,7 @@ class FormPending(SpellCastingState):
                 self.wizard.current_state = DirectionPending(
                     self.wizard,
                     spells.Projectile(
-                        starting_position=self.wizard.position,
+                        launched_from=self.wizard.position,
                         base=self.base,
                     ),
                 )
@@ -61,7 +61,7 @@ class FormPending(SpellCastingState):
                 self.wizard.current_state = DirectionPending(
                     self.wizard,
                     spells.Ray(
-                        starting_position=self.wizard.position,
+                        launched_from=self.wizard.position,
                         base=self.base,
                     ),
                 )

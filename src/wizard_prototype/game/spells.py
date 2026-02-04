@@ -25,10 +25,10 @@ class Spell(abc.ABC):
 class Projectile(Spell):
     def __init__(
         self,
-        starting_position: utils.Vec2D,
+        launched_from: utils.Vec2D,
         base: str,
     ):
-        self.position: utils.Vec2D = starting_position
+        self.position: utils.Vec2D = launched_from
         self.direction: utils.Vec2D | None = None
         self._base: str = base
         self._lifetime: int = 10
@@ -56,10 +56,10 @@ class Projectile(Spell):
 class Ray(Spell):
     def __init__(
         self,
-        starting_position: utils.Vec2D,
+        launched_from: utils.Vec2D,
         base: str,
     ):
-        self.starting_position: utils.Vec2D = starting_position
+        self.launched_from: utils.Vec2D = launched_from
         self.direction: utils.Vec2D | None = None
         self.range: int = 5
         self._base: str = base
@@ -80,9 +80,7 @@ class Ray(Spell):
         assert self.direction
         result = []
         for i in range(1, self.range + 1):
-            result.append(
-                utils.add(self.starting_position, utils.mult(self.direction, i))
-            )
+            result.append(utils.add(self.launched_from, utils.mult(self.direction, i)))
         return result
 
     def give_direction(self, direction: utils.Vec2D):
