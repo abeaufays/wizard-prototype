@@ -14,9 +14,10 @@ class GameState:
         expired_spells = []
 
         for spell in self.spells:
-            spell.update()
-            if spell.lifetime < 0:
-                expired_spells.append(spell)
+            if spell.form:
+                spell.form.update()
+                if spell.form.lifetime() < 0:
+                    expired_spells.append(spell)
 
         for expired_spell in expired_spells:
             self.spells.remove(expired_spell)
