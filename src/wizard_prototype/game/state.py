@@ -1,10 +1,14 @@
-from wizard_prototype.game import spells, wizard
+from typing import TYPE_CHECKING
+
+from wizard_prototype.game import wizard
+
+if TYPE_CHECKING:
+    from wizard_prototype.game import spells
 
 
 class GameState:
     def __init__(self) -> None:
-        self.debug: str = ""
-        self.spells: list[spells.Spell] = []
+        self.tangible_spells: list[spells.Form] = []
         self.player = wizard.Wizard(position=(5, 5))
 
     def update(self, cmd: str):
@@ -13,11 +17,10 @@ class GameState:
     def new_turn(self):
         expired_spells = []
 
-        for spell in self.spells:
-            if spell.form:
-                spell.form.update()
-                if spell.form.lifetime() < 0:
-                    expired_spells.append(spell)
+        for form in self.tangible_spells:
+            form.update()
+            if form.lifetime() < 0:
+                expired_spells.append(form)
 
         for expired_spell in expired_spells:
-            self.spells.remove(expired_spell)
+            self.tangible_spells.remove(expired_spell)

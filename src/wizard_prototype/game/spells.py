@@ -1,28 +1,52 @@
 from __future__ import annotations
 
 import abc
-from dataclasses import dataclass
 
 from wizard_prototype import utils
+from wizard_prototype.game import state, wizard
 
 
-class Base(abc.ABC):
+class Spell(abc.ABC):
+    def __init__(self, caster: wizard.Wizard):
+        self.caster: wizard.Wizard = caster
+
+    def assign_form(self, form: Form):
+        self.form = form
+
+    def assign_direction(self, direction: utils.Vec2D):
+        self.direction = direction
+
     @abc.abstractmethod
-    def needs_direction(self) -> bool: ...
+    def next_state(self) -> wizard.SpellCastingState | None: ...
 
     @abc.abstractmethod
-    def needs_form(self) -> bool: ...
+    def effect(self, game_state: state.GameState): ...
 
 
-class Element(Base):
-    def __init__(self, element: str) -> None:
+class Element(Spell):
+    def __init__(self, caster: wizard.Wizard, element: str) -> None:
+        super().__init__(caster)
         self.element = element
+        self._required_states = [
+            wizard.FormPending(self.caster, self),
+            wizard.DirectionPending(self.caster, self),
+        ]
 
-    def needs_direction(self) -> bool:
-        return True
+    def assign_direction(self, direction: utils.Vec2D) -> bool:
+        assert self.form
+        if not self.form.needs_direction():
+            raise ValueError
+        self.direction = direction
 
-    def needs_form(self) -> bool:
-        return True
+    def next_state(self) -> wizard.SpellCastingState | None:
+        if self._required_states:
+            return self._required_states.pop(0)
+        else:
+            return None
+
+    def effect(self, game_state: state.GameState) -> None:
+        assert self.form
+        game_state.tangible_spells.append(self.form)
 
 
 class Form(abc.ABC):
@@ -41,8 +65,12 @@ class Form(abc.ABC):
     @abc.abstractmethod
     def update(self) -> None: ...
 
+    # This is bad
+    def display(self) -> str:
+        return self.spell.element
 
-class Projectile(Form):
+
+class ProjectileForm(Form):
     def __init__(self, spell: Spell, casted_from: utils.Vec2D) -> None:
         super().__init__(spell)
         self.casted_from = casted_from
@@ -64,7 +92,7 @@ class Projectile(Form):
         self._lifetime -= 1
 
 
-class Ray(Form):
+class RayForm(Form):
     def __init__(self, spell: Spell, casted_from: utils.Vec2D) -> None:
         super().__init__(spell)
         self.casted_from = casted_from
@@ -88,10 +116,3 @@ class Ray(Form):
 
     def update(self) -> None:
         self._lifetime -= 1
-
-
-@dataclass
-class Spell:
-    base: Base
-    direction: utils.Vec2D | None = None
-    form: Form | None = None

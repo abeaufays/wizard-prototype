@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import abc
+from typing import TYPE_CHECKING
 
 from wizard_prototype import utils
 from wizard_prototype.game import direction as direction_utils
-from wizard_prototype.game import spells, state
+from wizard_prototype.game import spells
+
+if TYPE_CHECKING:
+    from wizard_prototype.game import state
 
 
 class SpellCastingState(abc.ABC):
@@ -22,6 +26,22 @@ class SpellCastingState(abc.ABC):
     def fail_spell(self) -> None:
         self.wizard.life -= 1
 
+    def switch_state(self, spell: spells.Spell, game_state: state.GameState) -> bool:
+        """
+        Switch to the input spells next state, and handle side effects
+
+        Returns True if the system should trigger a new turn
+        """
+        new_state = spell.next_state()
+        if new_state is None:
+            new_state = Normal(self.wizard)
+            spell.effect(game_state)
+            self.wizard.current_state = new_state
+            return True
+
+        self.wizard.current_state = new_state
+        return False
+
 
 class Normal(SpellCastingState):
     def handle_input(self, cmd: str, game_state: state.GameState) -> bool:
@@ -32,17 +52,22 @@ class Normal(SpellCastingState):
         else:
             match cmd:
                 case "f":
-                    self.wizard.current_state = FormPending(
-                        self.wizard, spells.Spell(base=spells.Element("󰈸"))
+                    spell: spells.Spell = spells.Element(
+                        caster=self.wizard, element="󰈸"
                     )
                 case "i":
-                    self.wizard.current_state = FormPending(
-                        self.wizard, spells.Spell(base=spells.Element("󰜗"))
+                    spell: spells.Spell = spells.Element(
+                        caster=self.wizard, element="󰜗"
                     )
                 case "a":
-                    self.wizard.current_state = FormPending(
-                        self.wizard, spells.Spell(base=spells.Element(""))
+                    spell: spells.Spell = spells.Element(
+                        caster=self.wizard, element=""
                     )
+                # Ignore other inputs
+                case _:
+                    return False
+
+            return self.switch_state(spell, game_state)
         return False
 
 
@@ -53,30 +78,31 @@ class FormPending(SpellCastingState):
 
     def handle_input(self, cmd: str, game_state: state.GameState) -> bool:
         match cmd:
+            # Cancel spell
             case " ":
                 self.wizard.current_state = Normal(self.wizard)
+                return True
+
             case "b":
-                self.current_spell.form = spells.Projectile(
+                form = spells.ProjectileForm(
                     spell=self.current_spell,
                     casted_from=self.wizard.position,
-                )
-                self.wizard.current_state = DirectionPending(
-                    self.wizard,
-                    self.current_spell,
                 )
             case "r":
-                self.current_spell.form = spells.Ray(
+                form = spells.RayForm(
                     spell=self.current_spell,
                     casted_from=self.wizard.position,
                 )
-                self.wizard.current_state = DirectionPending(
-                    self.wizard,
-                    self.current_spell,
-                )
+
+            # Fail spell
             case _:
                 self.fail_spell()
                 self.wizard.current_state = Normal(self.wizard)
                 return True
+
+        self.current_spell.assign_form(form)
+        return self.switch_state(self.current_spell, game_state)
+
         return False
 
 
@@ -88,13 +114,11 @@ class DirectionPending(SpellCastingState):
     def handle_input(self, cmd: str, game_state: state.GameState) -> bool:
         if direction_utils.is_direction(cmd):
             direction = direction_utils.to_direction(cmd).value
-            self.current_spell.direction = direction
+            self.current_spell.assign_direction(direction)
 
-            game_state.spells.append(self.current_spell)
-            self.wizard.current_state = Normal(self.wizard)
-
-            return True
+            return self.switch_state(self.current_spell, game_state)
         else:
+            # Cancelled and failed spells
             match cmd:
                 case " ":
                     self.wizard.current_state = Normal(self.wizard)

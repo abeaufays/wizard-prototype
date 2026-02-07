@@ -13,13 +13,9 @@ class Renderer:
 
         self._draw_character(game_state.player.position, "")
 
-        for spell in game_state.spells:
-            if spell.form:
-                for position in spell.form.affected_tiles():
-                    self._draw_character(position, spell.base.element)  # TODO
-
-        if game_state.debug:
-            self.stdscr.addstr(0, 0, game_state.debug)
+        for spell in game_state.tangible_spells:
+            for position in spell.affected_tiles():
+                self._draw_character(position, spell.display())  # TODO
 
     def _draw_character(self, position: Vec2D, char: str) -> None:
         if (
