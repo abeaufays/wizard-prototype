@@ -65,7 +65,6 @@ class Form(abc.ABC):
     @abc.abstractmethod
     def update(self) -> None: ...
 
-    # This is bad
     def display(self) -> str:
         return self.spell.element
 

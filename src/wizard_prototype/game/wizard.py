@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from wizard_prototype import utils
 from wizard_prototype.game import direction as direction_utils
-from wizard_prototype.game import spells
+from wizard_prototype.game.spells import casting
 
 if TYPE_CHECKING:
     from wizard_prototype.game import state
@@ -26,7 +26,7 @@ class SpellCastingState(abc.ABC):
     def fail_spell(self) -> None:
         self.wizard.life -= 1
 
-    def switch_state(self, spell: spells.Spell, game_state: state.GameState) -> bool:
+    def switch_state(self, spell: casting.Spell, game_state: state.GameState) -> bool:
         """
         Switch to the input spells next state, and handle side effects
 
@@ -52,15 +52,15 @@ class Normal(SpellCastingState):
         else:
             match cmd:
                 case "f":
-                    spell: spells.Spell = spells.Element(
+                    spell: casting.Spell = casting.Element(
                         caster=self.wizard, element="󰈸"
                     )
                 case "i":
-                    spell: spells.Spell = spells.Element(
+                    spell: casting.Spell = casting.Element(
                         caster=self.wizard, element="󰜗"
                     )
                 case "a":
-                    spell: spells.Spell = spells.Element(
+                    spell: casting.Spell = casting.Element(
                         caster=self.wizard, element=""
                     )
                 # Ignore other inputs
@@ -72,7 +72,7 @@ class Normal(SpellCastingState):
 
 
 class FormPending(SpellCastingState):
-    def __init__(self, wizard: Wizard, current_spell: spells.Spell) -> None:
+    def __init__(self, wizard: Wizard, current_spell: casting.Spell) -> None:
         super().__init__(wizard)
         self.current_spell = current_spell
 
@@ -84,12 +84,12 @@ class FormPending(SpellCastingState):
                 return True
 
             case "b":
-                form = spells.ProjectileForm(
+                form = casting.ProjectileForm(
                     spell=self.current_spell,
                     casted_from=self.wizard.position,
                 )
             case "r":
-                form = spells.RayForm(
+                form = casting.RayForm(
                     spell=self.current_spell,
                     casted_from=self.wizard.position,
                 )
@@ -107,9 +107,9 @@ class FormPending(SpellCastingState):
 
 
 class DirectionPending(SpellCastingState):
-    def __init__(self, wizard: Wizard, current_spell: spells.Spell) -> None:
+    def __init__(self, wizard: Wizard, current_spell: casting.Spell) -> None:
         self.wizard: Wizard = wizard
-        self.current_spell: spells.Spell = current_spell
+        self.current_spell: casting.Spell = current_spell
 
     def handle_input(self, cmd: str, game_state: state.GameState) -> bool:
         if direction_utils.is_direction(cmd):
