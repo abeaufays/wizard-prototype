@@ -6,7 +6,7 @@ from wizard_prototype import utils
 from wizard_prototype.game import state, wizard
 
 
-class Spell(abc.ABC):
+class SpellPreparation(abc.ABC):
     def __init__(self, caster: wizard.Wizard):
         self.caster: wizard.Wizard = caster
 
@@ -23,7 +23,7 @@ class Spell(abc.ABC):
     def effect(self, game_state: state.GameState): ...
 
 
-class Element(Spell):
+class Elemental(SpellPreparation):
     def __init__(self, caster: wizard.Wizard, element: str) -> None:
         super().__init__(caster)
         self.element = element
@@ -50,7 +50,7 @@ class Element(Spell):
 
 
 class Form(abc.ABC):
-    def __init__(self, spell: Spell) -> None:
+    def __init__(self, spell: SpellPreparation) -> None:
         self.spell = spell
 
     @abc.abstractmethod
@@ -70,7 +70,7 @@ class Form(abc.ABC):
 
 
 class ProjectileForm(Form):
-    def __init__(self, spell: Spell, casted_from: utils.Vec2D) -> None:
+    def __init__(self, spell: SpellPreparation, casted_from: utils.Vec2D) -> None:
         super().__init__(spell)
         self.casted_from = casted_from
         self.position = casted_from
@@ -92,7 +92,7 @@ class ProjectileForm(Form):
 
 
 class RayForm(Form):
-    def __init__(self, spell: Spell, casted_from: utils.Vec2D) -> None:
+    def __init__(self, spell: SpellPreparation, casted_from: utils.Vec2D) -> None:
         super().__init__(spell)
         self.casted_from = casted_from
         self.range = 5

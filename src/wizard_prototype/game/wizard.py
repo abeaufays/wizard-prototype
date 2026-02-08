@@ -26,7 +26,9 @@ class SpellCastingState(abc.ABC):
     def fail_spell(self) -> None:
         self.wizard.life -= 1
 
-    def switch_state(self, spell: casting.Spell, game_state: state.GameState) -> bool:
+    def switch_state(
+        self, spell: casting.SpellPreparation, game_state: state.GameState
+    ) -> bool:
         """
         Switch to the input spells next state, and handle side effects
 
@@ -52,15 +54,15 @@ class Normal(SpellCastingState):
         else:
             match cmd:
                 case "f":
-                    spell: casting.Spell = casting.Element(
+                    spell: casting.SpellPreparation = casting.Elemental(
                         caster=self.wizard, element="󰈸"
                     )
                 case "i":
-                    spell: casting.Spell = casting.Element(
+                    spell: casting.SpellPreparation = casting.Elemental(
                         caster=self.wizard, element="󰜗"
                     )
                 case "a":
-                    spell: casting.Spell = casting.Element(
+                    spell: casting.SpellPreparation = casting.Elemental(
                         caster=self.wizard, element=""
                     )
                 # Ignore other inputs
@@ -72,7 +74,7 @@ class Normal(SpellCastingState):
 
 
 class FormPending(SpellCastingState):
-    def __init__(self, wizard: Wizard, current_spell: casting.Spell) -> None:
+    def __init__(self, wizard: Wizard, current_spell: casting.SpellPreparation) -> None:
         super().__init__(wizard)
         self.current_spell = current_spell
 
@@ -107,9 +109,9 @@ class FormPending(SpellCastingState):
 
 
 class DirectionPending(SpellCastingState):
-    def __init__(self, wizard: Wizard, current_spell: casting.Spell) -> None:
+    def __init__(self, wizard: Wizard, current_spell: casting.SpellPreparation) -> None:
         self.wizard: Wizard = wizard
-        self.current_spell: casting.Spell = current_spell
+        self.current_spell: casting.SpellPreparation = current_spell
 
     def handle_input(self, cmd: str, game_state: state.GameState) -> bool:
         if direction_utils.is_direction(cmd):
